@@ -27,9 +27,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->next, &QPushButton::clicked, this, &MainWindow::nextAudio);
     connect(ui->previous, &QPushButton::clicked, this, &MainWindow::previousAudio);
     connect(player, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::audioAcabat);
-    connect(player, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::playAudio);
 
-    connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
+    positionSlider = new QSlider(Qt::Horizontal, this);
+    positionSlider->setRange(0, 0); // inicialización con valor cero
+    positionSlider->setValue(0);
+    connect(positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
+    ui->statusbar->addPermanentWidget(positionSlider);
 }
 
 MainWindow::~MainWindow()
@@ -51,11 +54,15 @@ void MainWindow::durationChanged(qint64 duration)
 void MainWindow::playAudio()
 {
     if (!audioFiles.isEmpty()) {
+
         if(primer ==""){
             QString currentFile = audioFiles[currentAudioIndex];
             QUrl url = QUrl::fromLocalFile(currentFile);
             player->setSource(url);
             ui->statusbar->showMessage(currentFile);
+            player->play();
+            ui->play->setIcon(QIcon(":/icons/pause2.png"));
+            isPlaying = !isPlaying;
             primer = "cargat";
         }else{
             if (isPlaying) {
@@ -111,6 +118,7 @@ void MainWindow::nextAudio()
     QUrl url = QUrl::fromLocalFile(currentFile);
     player->setSource(url);
     ui->statusbar->showMessage(currentFile);
+    player->play();
 }
 
 void MainWindow::previousAudio()
@@ -126,6 +134,7 @@ void MainWindow::previousAudio()
     QUrl url = QUrl::fromLocalFile(currentFile);
     player->setSource(url);
     ui->statusbar->showMessage(currentFile);
+    player->play();
 }
 
 
