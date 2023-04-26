@@ -5,6 +5,9 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QSlider>
+#include <random>
+#include <stdlib.h>
+#include <QPropertyAnimation>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,8 +21,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->next->setIcon(QIcon(":/icons/next2.png"));
     ui->previous->setIcon(QIcon(":/icons/previous2.png"));
     ui->stop->setIcon(QIcon(":/icons/stop2.png"));
+    ui->mes->setIcon(QIcon(":/icons/forward3.png"));
+    ui->menys->setIcon(QIcon(":/icons/backward2.png"));
+    ui->sequencial->setIcon(QIcon(":/icons/shuffle.png"));
+    ui->bucle->setIcon(QIcon(":/icons/loop.png"));
+    ui->afegirMusica->setIcon(QIcon(":/icons/plus.png"));
     QPixmap pixmap(":/icons/volume-medium.png");
     ui->volum->setPixmap(pixmap);
+
     connect(player, &QMediaPlayer::positionChanged, this, &MainWindow::positionChanged);
     connect(player, &QMediaPlayer::durationChanged, this, &MainWindow::durationChanged);
     connect(ui->play, &QPushButton::clicked, this, &MainWindow::playAudio);
@@ -28,11 +37,27 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->previous, &QPushButton::clicked, this, &MainWindow::previousAudio);
     connect(player, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::audioAcabat);
 
-    positionSlider = new QSlider(Qt::Horizontal, this);
-    positionSlider->setRange(0, 0); // inicialización con valor cero
-    positionSlider->setValue(0);
-    connect(positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
-    ui->statusbar->addPermanentWidget(positionSlider);
+    connect(ui->volumeSlider, &QSlider::sliderMoved, this, &MainWindow::volumen);
+    connect(ui->mes, &QPushButton::clicked, this, &MainWindow::endavantAudio);
+    connect(ui->menys, &QPushButton::clicked, this, &MainWindow::enrrereAudio);
+    connect(ui->sequencial, &QPushButton::clicked, this, &MainWindow::sequencial);
+    connect(ui->bucle, &QPushButton::clicked, this, &MainWindow::bucle);
+    ui->positionSlider->setRange(0, 0);
+    ui->positionSlider->setValue(0);
+    connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
+    ui->canco->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../M7_Spotify/playlist";
+    QDir playlistDir(playlistFolder);
+    QStringList playlist = playlistDir.entryList(QStringList() << "*.mp3" << "*.wav", QDir::Files);
+    qDebug() << playlist;
+    for (int i = 0; i < playlist.size(); i++) {
+        QString filePath = playlistDir.filePath(playlist[i]);
+        audioFiles.append(filePath);
+        QFileInfo fileInfo(filePath);
+        ui->playlistWidget->addItem(fileInfo.fileName());
+    }
+
 }
 
 MainWindow::~MainWindow()
@@ -42,13 +67,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::positionChanged(qint64 position)
 {
-    positionSlider->setValue(position / 1000);
+    ui->positionSlider->setValue(position / 1000);
 }
 
 void MainWindow::durationChanged(qint64 duration)
 
 {
-    positionSlider->setRange(0, duration / 1000);
+    ui->positionSlider->setRange(0, duration / 1000);
 }
 
 void MainWindow::playAudio()
@@ -59,10 +84,12 @@ void MainWindow::playAudio()
             QString currentFile = audioFiles[currentAudioIndex];
             QUrl url = QUrl::fromLocalFile(currentFile);
             player->setSource(url);
-            ui->statusbar->showMessage(currentFile);
+            QFileInfo fileInfo(currentFile);
+            QString fileName = fileInfo.fileName();
+            QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+            ui->canco->setText(fileNameWithoutExtension);
             player->play();
             ui->play->setIcon(QIcon(":/icons/pause2.png"));
-            isPlaying = !isPlaying;
             primer = "cargat";
         }else{
             if (isPlaying) {
@@ -82,11 +109,19 @@ void MainWindow::playAudio()
 void MainWindow::on_stop_clicked()
 {
     player->stop();
+    if(isPlaying){
+        isPlaying = !isPlaying;
+    }else{
+
+    }
+    ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
-void MainWindow::on_volumeSlider_valueChanged(int value)
+void MainWindow::volumen(int value)
 {
     audioOutput->setVolume(value);
+
+    //QAudioOutput::setVolume(value);
     if(value == 0){
         QPixmap pixmap(":/icons/volume-mute.png");
         ui->volum->setPixmap(pixmap);
@@ -113,12 +148,34 @@ void MainWindow::nextAudio()
     if (audioFiles.isEmpty()) {
         return;
     }
-    currentAudioIndex = (currentAudioIndex + 1) % audioFiles.count();
-    QString currentFile = audioFiles[currentAudioIndex];
-    QUrl url = QUrl::fromLocalFile(currentFile);
-    player->setSource(url);
-    ui->statusbar->showMessage(currentFile);
-    player->play();
+    if(bucle2){
+            primer = "";
+            playAudio();
+    }else{
+        if(sequencial2){
+            int randomIndex = rand() % audioFiles.count();
+            while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
+                  randomIndex = rand() % audioFiles.count();
+            }
+            currentAudioIndex = randomIndex;
+            usedNumbers.insert(currentAudioIndex);
+            if (usedNumbers.count() == audioFiles.count()) {
+                 usedNumbers.clear();
+            }
+        }else{
+            currentAudioIndex = (currentAudioIndex + 1) % audioFiles.count();
+
+        }
+        QString currentFile = audioFiles[currentAudioIndex];
+        QUrl url = QUrl::fromLocalFile(currentFile);
+        player->setSource(url);
+        QFileInfo fileInfo(currentFile);
+        QString fileName = fileInfo.fileName();
+        QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+        ui->canco->setText(fileNameWithoutExtension);
+        player->play();
+        ui->play->setIcon(QIcon(":/icons/pause2.png"));
+    }
 }
 
 void MainWindow::previousAudio()
@@ -126,15 +183,36 @@ void MainWindow::previousAudio()
     if (audioFiles.isEmpty()) {
         return;
     }
-    currentAudioIndex--;
-    if (currentAudioIndex < 0) {
-        currentAudioIndex = audioFiles.count() - 1;
+    if(bucle2){
+            primer = "";
+            playAudio();
+    }else{
+        if(sequencial2){
+            int randomIndex = rand() % audioFiles.count();
+            while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
+                  randomIndex = rand() % audioFiles.count();
+            }
+            currentAudioIndex = randomIndex;
+            usedNumbers.insert(currentAudioIndex);
+            if (usedNumbers.count() == audioFiles.count()) {
+                 usedNumbers.clear();
+            }
+        }else{
+            currentAudioIndex--;
+            if (currentAudioIndex < 0) {
+                currentAudioIndex = audioFiles.count() - 1;
+            }
+            QString currentFile = audioFiles[currentAudioIndex];
+            QUrl url = QUrl::fromLocalFile(currentFile);
+            player->setSource(url);
+            QFileInfo fileInfo(currentFile);
+            QString fileName = fileInfo.fileName();
+            QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+            ui->canco->setText(fileNameWithoutExtension);
+            player->play();
+            ui->play->setIcon(QIcon(":/icons/pause2.png"));
+        }
     }
-    QString currentFile = audioFiles[currentAudioIndex];
-    QUrl url = QUrl::fromLocalFile(currentFile);
-    player->setSource(url);
-    ui->statusbar->showMessage(currentFile);
-    player->play();
 }
 
 
@@ -157,6 +235,45 @@ void MainWindow::audioAcabat(QMediaPlayer::MediaStatus state)
     if (state == QMediaPlayer::EndOfMedia) {
         nextAudio();
     }
+}
+
+void MainWindow::endavantAudio()
+{
+    qint64 newPos = player->position() + 5000;
+
+    if (newPos >= player->duration()) {
+            nextAudio();
+        } else {
+            player->setPosition(newPos);
+        }
+
+}
+
+void MainWindow::enrrereAudio()
+{
+    qint64 newPos = player->position() - 5000;
+    if (newPos < 0) newPos = 0;
+    player->setPosition(newPos);
+}
+
+void MainWindow::sequencial() {
+    sequencial2 = !sequencial2;
+    if (sequencial2) {
+        ui->sequencial->setStyleSheet("background-color: #00FF00");
+    } else {
+        ui->sequencial->setStyleSheet("");
+    }
+}
+
+void MainWindow::bucle() {
+    bucle2 = !bucle2;
+    if (bucle2) {
+         ui->bucle->setStyleSheet("background-color: #00FF00");
+       } else {
+         ui->bucle->setStyleSheet("");
+
+      }
+
 }
 
 

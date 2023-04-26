@@ -7,6 +7,8 @@
 #include <QSlider>
 #include <QListWidget>
 #include <QPushButton>
+#include <QPropertyAnimation>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -24,7 +26,7 @@ public:
 private slots:
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
-    void on_volumeSlider_valueChanged(int value);
+    void volumen(int value);
     void on_stop_clicked();
     void setMPPosition(int position);
 
@@ -34,19 +36,24 @@ private slots:
 
     void playAudio();
     void audioAcabat(QMediaPlayer::MediaStatus state);
+    void endavantAudio();
+    void enrrereAudio();
+    void sequencial();
+    void bucle();
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;
     QAudioOutput *audioOutput;
     QListWidget *playlistWidget;
-    QSlider *positionSlider;
     QList<QString> audioFiles;
     QUrl url;
     QPushButton *afegirMusica;
     int currentAudioIndex = 0;
     bool isPlaying = true;
     QString primer = "";
-
+    bool sequencial2 = false;
+    bool bucle2 = false;
+    QSet<int> usedNumbers;
 
 };
 #endif // MAINWINDOW_H
