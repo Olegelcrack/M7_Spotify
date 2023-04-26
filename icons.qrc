@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/backward2.png</file>
+        <file>icons/first.png</file>
+        <file>icons/forward3.png</file>
+        <file>icons/last.png</file>
+        <file>icons/loop.png</file>
+        <file>icons/next2.png</file>
+        <file>icons/pause2.png</file>
+        <file>icons/play3.png</file>
+        <file>icons/previous2.png</file>
+        <file>icons/shuffle.png</file>
+        <file>icons/stop2.png</file>
+        <file>icons/volume-high.png</file>
+        <file>icons/volume-low.png</file>
+        <file>icons/volume-medium.png</file>
+        <file>icons/volume-mute.png</file>
+    </qresource>
+</RCC>
