@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     player = new QMediaPlayer();
     audioOutput = new QAudioOutput();
     player->setAudioOutput(audioOutput);
+
     ui->play->setIcon(QIcon(":/icons/play3.png"));
     ui->next->setIcon(QIcon(":/icons/next2.png"));
     ui->previous->setIcon(QIcon(":/icons/previous2.png"));
@@ -42,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->menys, &QPushButton::clicked, this, &MainWindow::enrrereAudio);
     connect(ui->sequencial, &QPushButton::clicked, this, &MainWindow::sequencial);
     connect(ui->bucle, &QPushButton::clicked, this, &MainWindow::bucle);
+
     ui->positionSlider->setRange(0, 0);
     ui->positionSlider->setValue(0);
     connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
