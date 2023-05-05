@@ -40,6 +40,10 @@ private slots:
     void enrrereAudio();
     void sequencial();
     void bucle();
+    //void on_positionSlider_sliderMoved(int position);
+
+    void on_positionSlider_actionTriggered(int action);
+
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;

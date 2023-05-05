@@ -44,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sequencial, &QPushButton::clicked, this, &MainWindow::sequencial);
     connect(ui->bucle, &QPushButton::clicked, this, &MainWindow::bucle);
 
+    ui->volumeSlider->setMaximumWidth(200);
+    ui->volumeSlider->setMinimumWidth(50);
+
     ui->positionSlider->setRange(0, 0);
     ui->positionSlider->setValue(0);
     connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
@@ -73,7 +76,6 @@ void MainWindow::positionChanged(qint64 position)
 }
 
 void MainWindow::durationChanged(qint64 duration)
-
 {
     ui->positionSlider->setRange(0, duration / 1000);
 }
@@ -277,5 +279,3 @@ void MainWindow::bucle() {
       }
 
 }
-
-
