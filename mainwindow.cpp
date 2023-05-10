@@ -113,11 +113,7 @@ void MainWindow::playAudio()
 void MainWindow::on_stop_clicked()
 {
     player->stop();
-    if(!isPlaying){
-        isPlaying = !isPlaying;
-    }else{
-
-    }
+    isPlaying = false;
     ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
