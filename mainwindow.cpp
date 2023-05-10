@@ -63,10 +63,24 @@ MainWindow::MainWindow(QWidget *parent)
         ui->playlistWidget->addItem(fileInfo.fileName());
     }
 
-    lab = new QLabel(QString::number(playlist.size()) +" cançons afegides");
-    lab->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    lab->setFont(QFont("Sans Serif", 11));
-    loadStatusBar(lab);
+    //Status bar Labels
+
+    leftLabel = new QLabel("HEHEHE una prova");
+    //leftLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    leftLabel->setFont(QFont("Sans Serif", 11));
+
+    rightLabel = new QLabel(QString::number(playlist.size()) + " cançons afegides");
+    //rightLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    rightLabel->setFont(QFont("Sans Serif", 11));
+
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(leftLabel);
+    layout->addStretch(1);
+    layout->addWidget(rightLabel);
+
+    widget->setLayout(layout);
+
+    loadStatusBar();
 }
 
 MainWindow::~MainWindow()
@@ -122,9 +136,9 @@ void MainWindow::on_stop_clicked()
     ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
-void MainWindow::volumen(int value)
+void MainWindow::volumen(double value)
 {
-    audioOutput->setVolume(value);
+    audioOutput->setVolume(value/100);
 
     //QAudioOutput::setVolume(value);
     if(value == 0){
@@ -248,6 +262,8 @@ void MainWindow::addAudioFiles()
                 ui->playlistWidget->addItem(fileInfo.fileName());
             }
         }
+        rightLabel = new QLabel(QString::number(files.size()) + " cançons afegides");
+        loadStatusBar();
     }
 }
 
@@ -326,9 +342,8 @@ void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
     on_playlistWidget_currentRowChanged(currentAudioIndex);
 }
 
-void MainWindow::loadStatusBar(QLabel* lab)
+void MainWindow::loadStatusBar()
 {
-    ui->statusbar->removeWidget(lab);
-
-    ui->statusbar->addPermanentWidget(lab);
+    //ui->statusbar->removeWidget(widget);
+    ui->statusbar->addWidget(widget, 1);
 }

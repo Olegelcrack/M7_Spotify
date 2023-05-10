@@ -27,7 +27,7 @@ public:
 private slots:
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
-    void volumen(int value);
+    void volumen(double value);
     void on_stop_clicked();
     void setMPPosition(int position);
 
@@ -46,7 +46,7 @@ private slots:
 
     void on_playlistWidget_itemClicked(QListWidgetItem *item);
 
-    void loadStatusBar(QLabel* lab);
+    void loadStatusBar();
 
 private:
     Ui::MainWindow *ui;
@@ -64,6 +64,9 @@ private:
     QSet<int> usedNumbers;
     bool start = false;
 
-    QLabel* lab; // label per statusBar
+    // labels per statusBar
+    QLabel* leftLabel;
+    QLabel* rightLabel;
+    QWidget *widget = new QWidget();
 };
 #endif // MAINWINDOW_H
