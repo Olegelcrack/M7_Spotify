@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
     ui->canco->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
-    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../wemusic/M7_Spotify/playlist";
+    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../M7_Spotify/playlist";
     QDir playlistDir(playlistFolder);
     QStringList playlist = playlistDir.entryList(QStringList() << "*.mp3" << "*.wav", QDir::Files);
     qDebug() << playlistFolder;
@@ -99,13 +99,14 @@ void MainWindow::playAudio()
             if (!isPlaying) {
                 player->pause();
                 ui->play->setIcon(QIcon(":/icons/play3.png"));
-            } else { // Establece la posición de reproducción almacenada
+            } else {
                 player->play();
                 ui->play->setIcon(QIcon(":/icons/pause2.png"));
 
             }
             isPlaying = !isPlaying;
         }
+        ui->playlistWidget->setCurrentRow(currentAudioIndex);
     }
 }
 
@@ -113,7 +114,7 @@ void MainWindow::playAudio()
 void MainWindow::on_stop_clicked()
 {
     player->stop();
-    isPlaying = false;
+    isPlaying = true;
     ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
@@ -175,6 +176,7 @@ void MainWindow::nextAudio()
         ui->canco->setText(fileNameWithoutExtension);
         player->play();
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
+        ui->playlistWidget->setCurrentRow(currentAudioIndex);
     }
 }
 
@@ -217,15 +219,16 @@ void MainWindow::previousAudio()
 
             }
         }
-    QString currentFile = audioFiles[currentAudioIndex];
-    QUrl url = QUrl::fromLocalFile(currentFile);
-    player->setSource(url);
-    QFileInfo fileInfo(currentFile);
-    QString fileName = fileInfo.fileName();
-    QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
-    ui->canco->setText(fileNameWithoutExtension);
-    player->play();
-    ui->play->setIcon(QIcon(":/icons/pause2.png"));
+        QString currentFile = audioFiles[currentAudioIndex];
+        QUrl url = QUrl::fromLocalFile(currentFile);
+        player->setSource(url);
+        QFileInfo fileInfo(currentFile);
+        QString fileName = fileInfo.fileName();
+        QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+        ui->canco->setText(fileNameWithoutExtension);
+        player->play();
+        ui->play->setIcon(QIcon(":/icons/pause2.png"));
+        ui->playlistWidget->setCurrentRow(currentAudioIndex);
     }
 }
 
