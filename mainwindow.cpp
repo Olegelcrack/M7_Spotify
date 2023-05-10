@@ -3,11 +3,12 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QFileDialog>
-#include <QDebug>
 #include <QSlider>
 #include <random>
 #include <stdlib.h>
 #include <QPropertyAnimation>
+#include <QLabel>
+#include <QFont>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -55,7 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
     QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../M7_Spotify/playlist";
     QDir playlistDir(playlistFolder);
     QStringList playlist = playlistDir.entryList(QStringList() << "*.mp3" << "*.wav", QDir::Files);
-    qDebug() << playlistFolder;
     for (int i = 0; i < playlist.size(); i++) {
         QString filePath = playlistDir.filePath(playlist[i]);
         audioFiles.append(filePath);
@@ -63,6 +63,10 @@ MainWindow::MainWindow(QWidget *parent)
         ui->playlistWidget->addItem(fileInfo.fileName());
     }
 
+    lab = new QLabel(QString::number(playlist.size()) +" cançons afegides");
+    lab->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    lab->setFont(QFont("Sans Serif", 11));
+    loadStatusBar(lab);
 }
 
 MainWindow::~MainWindow()
@@ -322,3 +326,9 @@ void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
     on_playlistWidget_currentRowChanged(currentAudioIndex);
 }
 
+void MainWindow::loadStatusBar(QLabel* lab)
+{
+    ui->statusbar->removeWidget(lab);
+
+    ui->statusbar->addPermanentWidget(lab);
+}

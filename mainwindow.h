@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QPropertyAnimation>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,11 +41,12 @@ private slots:
     void enrrereAudio();
     void sequencial();
     void bucle();
-    //void on_positionSlider_sliderMoved(int position);
 
     void on_playlistWidget_currentRowChanged(int currentRow);
 
     void on_playlistWidget_itemClicked(QListWidgetItem *item);
+
+    void loadStatusBar(QLabel* lab);
 
 private:
     Ui::MainWindow *ui;
@@ -62,5 +64,6 @@ private:
     QSet<int> usedNumbers;
     bool start = false;
 
+    QLabel* lab; // label per statusBar
 };
 #endif // MAINWINDOW_H
