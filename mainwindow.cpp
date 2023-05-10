@@ -52,10 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
     ui->canco->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
-    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../M7_Spotify/playlist";
+    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../wemusic/M7_Spotify/playlist";
     QDir playlistDir(playlistFolder);
     QStringList playlist = playlistDir.entryList(QStringList() << "*.mp3" << "*.wav", QDir::Files);
-    qDebug() << playlist;
+    qDebug() << playlistFolder;
     for (int i = 0; i < playlist.size(); i++) {
         QString filePath = playlistDir.filePath(playlist[i]);
         audioFiles.append(filePath);
@@ -96,7 +96,7 @@ void MainWindow::playAudio()
             ui->play->setIcon(QIcon(":/icons/pause2.png"));
             primer = "cargat";
         }else{
-            if (isPlaying) {
+            if (!isPlaying) {
                 player->pause();
                 ui->play->setIcon(QIcon(":/icons/play3.png"));
             } else { // Establece la posición de reproducción almacenada
@@ -113,7 +113,7 @@ void MainWindow::playAudio()
 void MainWindow::on_stop_clicked()
 {
     player->stop();
-    if(isPlaying){
+    if(!isPlaying){
         isPlaying = !isPlaying;
     }else{
 
@@ -192,30 +192,44 @@ void MainWindow::previousAudio()
             playAudio();
     }else{
         if(sequencial2){
-            int randomIndex = rand() % audioFiles.count();
-            while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
-                  randomIndex = rand() % audioFiles.count();
-            }
-            currentAudioIndex = randomIndex;
-            usedNumbers.insert(currentAudioIndex);
-            if (usedNumbers.count() == audioFiles.count()) {
-                 usedNumbers.clear();
+            qint64 newPos = player->position();
+            if (newPos > 2000){
+                newPos = 0;
+                player->setPosition(newPos);
+            }else{
+                int randomIndex = rand() % audioFiles.count();
+                while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
+                      randomIndex = rand() % audioFiles.count();
+                }
+                currentAudioIndex = randomIndex;
+                usedNumbers.insert(currentAudioIndex);
+                if (usedNumbers.count() == audioFiles.count()) {
+                     usedNumbers.clear();
+                }
             }
         }else{
-            currentAudioIndex--;
-            if (currentAudioIndex < 0) {
-                currentAudioIndex = audioFiles.count() - 1;
+            qint64 newPos = player->position();
+            if (newPos > 2000){
+                newPos = 0;
+                player->setPosition(newPos);
+            }else{
+
+                currentAudioIndex--;
+                if (currentAudioIndex < 0) {
+                    currentAudioIndex = 0;
+                }
+
             }
-            QString currentFile = audioFiles[currentAudioIndex];
-            QUrl url = QUrl::fromLocalFile(currentFile);
-            player->setSource(url);
-            QFileInfo fileInfo(currentFile);
-            QString fileName = fileInfo.fileName();
-            QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
-            ui->canco->setText(fileNameWithoutExtension);
-            player->play();
-            ui->play->setIcon(QIcon(":/icons/pause2.png"));
         }
+    QString currentFile = audioFiles[currentAudioIndex];
+    QUrl url = QUrl::fromLocalFile(currentFile);
+    player->setSource(url);
+    QFileInfo fileInfo(currentFile);
+    QString fileName = fileInfo.fileName();
+    QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+    ui->canco->setText(fileNameWithoutExtension);
+    player->play();
+    ui->play->setIcon(QIcon(":/icons/pause2.png"));
     }
 }
 
@@ -279,3 +293,33 @@ void MainWindow::bucle() {
       }
 
 }
+
+
+void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
+{
+
+    if(start == true){
+
+        currentAudioIndex = currentRow;
+        QString currentFile = audioFiles[currentAudioIndex];
+        QUrl url = QUrl::fromLocalFile(currentFile);
+        player->setSource(url);
+        QFileInfo fileInfo(currentFile);
+        QString fileName = fileInfo.fileName();
+        QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
+        ui->canco->setText(fileNameWithoutExtension);
+
+        player->play();
+        primer = "cargat";
+        ui->play->setIcon(QIcon(":/icons/pause2.png"));
+     }else{
+        start = true;
+    }
+}
+
+
+void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
+{
+    on_playlistWidget_currentRowChanged(currentAudioIndex);
+}
+

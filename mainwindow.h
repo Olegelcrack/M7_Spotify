@@ -42,6 +42,9 @@ private slots:
     void bucle();
     //void on_positionSlider_sliderMoved(int position);
 
+    void on_playlistWidget_currentRowChanged(int currentRow);
+
+    void on_playlistWidget_itemClicked(QListWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;
@@ -52,11 +55,12 @@ private:
     QUrl url;
     QPushButton *afegirMusica;
     int currentAudioIndex = 0;
-    bool isPlaying = true;
+    bool isPlaying = false;
     QString primer = "";
     bool sequencial2 = false;
     bool bucle2 = false;
     QSet<int> usedNumbers;
+    bool start = false;
 
 };
 #endif // MAINWINDOW_H
