@@ -311,7 +311,7 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         QString fileName = fileInfo.fileName();
         QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
         ui->canco->setText(fileNameWithoutExtension);
-
+        isPlaying = false;
         player->play();
         primer = "cargat";
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
