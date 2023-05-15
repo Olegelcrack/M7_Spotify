@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QPropertyAnimation>
 #include <QLabel>
+#include <QHBoxLayout>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,6 +49,8 @@ private slots:
 
     void loadStatusBar();
 
+    void on_remove_clicked();
+
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;
@@ -68,5 +71,6 @@ private:
     QLabel* leftLabel;
     QLabel* rightLabel;
     QWidget *widget = new QWidget();
+    QHBoxLayout *layout = new QHBoxLayout();
 };
 #endif // MAINWINDOW_H

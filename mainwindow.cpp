@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     //rightLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     rightLabel->setFont(QFont("Sans Serif", 11));
 
-    QHBoxLayout *layout = new QHBoxLayout();
+
     layout->addWidget(leftLabel);
     layout->addStretch(1);
     layout->addWidget(rightLabel);
@@ -262,7 +262,9 @@ void MainWindow::addAudioFiles()
                 ui->playlistWidget->addItem(fileInfo.fileName());
             }
         }
-        rightLabel = new QLabel(QString::number(files.size()) + " cançons afegides");
+        layout->removeWidget(rightLabel);
+        rightLabel->setText(QString::number(files.size()) + " cançons afegides");
+        layout->addWidget(rightLabel);
         loadStatusBar();
     }
 }
@@ -317,9 +319,10 @@ void MainWindow::bucle() {
 void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 {
 
-    if(start == true){
+    if(start == true and audioFiles.size() > 0){
 
         currentAudioIndex = currentRow;
+        qDebug() << audioFiles[currentAudioIndex];
         QString currentFile = audioFiles[currentAudioIndex];
         QUrl url = QUrl::fromLocalFile(currentFile);
         player->setSource(url);
@@ -333,6 +336,7 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
      }else{
         start = true;
+        currentAudioIndex = currentRow;
     }
 }
 
@@ -340,6 +344,17 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
 {
     on_playlistWidget_currentRowChanged(currentAudioIndex);
+
+}
+
+void MainWindow::on_remove_clicked()
+{
+    if (currentAudioIndex >= 0 && currentAudioIndex <= audioFiles.size()) {
+
+        qDebug() << audioFiles[currentAudioIndex];
+        ui->playlistWidget->takeItem(currentAudioIndex);
+        audioFiles.removeAt(currentAudioIndex);
+    }
 }
 
 void MainWindow::loadStatusBar()
@@ -347,3 +362,6 @@ void MainWindow::loadStatusBar()
     //ui->statusbar->removeWidget(widget);
     ui->statusbar->addWidget(widget, 1);
 }
+
+
+
