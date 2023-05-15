@@ -318,16 +318,19 @@ void MainWindow::bucle() {
 
 void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 {
-    qDebug() << currentRow;
-      if(borrat && currentRow >=0 && currentRow +1 != audioFiles.size()){
-         currentRow -= 1;
-        borrat = false;
-      }else if(borrat && currentRow < 0){
+    if (borrat && currentRow < 0) {
         currentRow += 1;
-      }else if(borrat && currentRow+1 == audioFiles.size()){
         borrat = false;
-      }
-    qDebug() << currentRow;
+    }else if(borrat && (currentRow+1) > audioFiles.size()){
+        currentRow = audioFiles.size() -1;
+        borrat = false;
+    }else if(borrat && currentRow > 0 && (currentRow+1) < audioFiles.size()){
+        currentRow -=1;
+        borrat = false;
+    }else if(borrat && currentRow+1 == audioFiles.size() && ultim == false){
+        currentRow -=1;
+        borrat = false;
+    }
 
     if(start && audioFiles.size() > 0){
 
@@ -344,10 +347,23 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         player->play();
         primer = "cargat";
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
+        if(currentRow+1 == audioFiles.size()){
+            ultim = true;
+        }else{
+            ultim = false;
+        }
+
      }else{
         start = true;
+        player->stop();
+        ui->canco->clear();
+        ui->play->setIcon(QIcon(":/icons/play3.png"));
         currentAudioIndex = currentRow;
     }
+    layout->removeWidget(rightLabel);
+    rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
+    layout->addWidget(rightLabel);
+    loadStatusBar();
 }
 
 
@@ -359,16 +375,10 @@ void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
 
 void MainWindow::on_remove_clicked()
 {
+    num_files = audioFiles.size();
     audioFiles.remove(currentAudioIndex);
     borrat = true;
-
-    qDebug() << "despres de takeItem";
      ui->playlistWidget->takeItem(currentAudioIndex);
-    /*if (currentAudioIndex >= 0 && currentAudioIndex <= audioFiles.size()) {
-        ui->playlistWidget->takeItem(currentAudioIndex);
-        audioFiles.removeAt(currentAudioIndex);
-    }
-    qDebug() << "total audio: " << audioFiles[currentAudioIndex];*/
 }
 
 void MainWindow::loadStatusBar()

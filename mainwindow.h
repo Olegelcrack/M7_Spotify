@@ -67,11 +67,12 @@ private:
     QSet<int> usedNumbers;
     bool start = false;
     bool borrat = false;
-
+    bool ultim = false;
     // labels per statusBar
     QLabel* leftLabel;
     QLabel* rightLabel;
     QWidget *widget = new QWidget();
     QHBoxLayout *layout = new QHBoxLayout();
+    int num_files;
 };
 #endif // MAINWINDOW_H
