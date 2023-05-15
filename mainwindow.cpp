@@ -318,11 +318,21 @@ void MainWindow::bucle() {
 
 void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 {
+    qDebug() << currentRow;
+      if(borrat && currentRow >=0 && currentRow +1 != audioFiles.size()){
+         currentRow -= 1;
+        borrat = false;
+      }else if(borrat && currentRow < 0){
+        currentRow += 1;
+      }else if(borrat && currentRow+1 == audioFiles.size()){
+        borrat = false;
+      }
+    qDebug() << currentRow;
 
-    if(start == true and audioFiles.size() > 0){
+    if(start && audioFiles.size() > 0){
 
         currentAudioIndex = currentRow;
-        qDebug() << audioFiles[currentAudioIndex];
+        //qDebug() << audioFiles[currentAudioIndex];
         QString currentFile = audioFiles[currentAudioIndex];
         QUrl url = QUrl::fromLocalFile(currentFile);
         player->setSource(url);
@@ -349,12 +359,16 @@ void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
 
 void MainWindow::on_remove_clicked()
 {
-    if (currentAudioIndex >= 0 && currentAudioIndex <= audioFiles.size()) {
+    audioFiles.remove(currentAudioIndex);
+    borrat = true;
 
-        qDebug() << audioFiles[currentAudioIndex];
+    qDebug() << "despres de takeItem";
+     ui->playlistWidget->takeItem(currentAudioIndex);
+    /*if (currentAudioIndex >= 0 && currentAudioIndex <= audioFiles.size()) {
         ui->playlistWidget->takeItem(currentAudioIndex);
         audioFiles.removeAt(currentAudioIndex);
     }
+    qDebug() << "total audio: " << audioFiles[currentAudioIndex];*/
 }
 
 void MainWindow::loadStatusBar()

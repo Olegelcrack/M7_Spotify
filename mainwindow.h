@@ -66,6 +66,7 @@ private:
     bool bucle2 = false;
     QSet<int> usedNumbers;
     bool start = false;
+    bool borrat = false;
 
     // labels per statusBar
     QLabel* leftLabel;
