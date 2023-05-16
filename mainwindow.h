@@ -51,6 +51,11 @@ private slots:
 
     void on_remove_clicked();
 
+    void on_actionBucle_triggered();
+    void on_actionAleatori_triggered();
+    void on_actionSortir_triggered();
+    void on_actionInsertar_Can_triggered();
+
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;

@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Status bar Labels
 
-    leftLabel = new QLabel("HEHEHE una prova");
+    leftLabel = new QLabel("HEHEHE una prova ta mare");
     //leftLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     leftLabel->setFont(QFont("Sans Serif", 11));
 
@@ -298,17 +298,22 @@ void MainWindow::enrrereAudio()
 void MainWindow::sequencial() {
     sequencial2 = !sequencial2;
     if (sequencial2) {
+        ui->actionAleatori->setChecked(true);
         ui->sequencial->setStyleSheet("background-color: #00FF00");
     } else {
+        ui->actionAleatori->setChecked(false);
         ui->sequencial->setStyleSheet("");
     }
 }
 
 void MainWindow::bucle() {
+
     bucle2 = !bucle2;
     if (bucle2) {
+        ui->actionBucle->setChecked(true);
          ui->bucle->setStyleSheet("background-color: #00FF00");
        } else {
+        ui->actionBucle->setChecked(false);
          ui->bucle->setStyleSheet("");
 
       }
@@ -320,17 +325,12 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 {
     if (borrat && currentRow < 0) {
         currentRow += 1;
-        borrat = false;
     }else if(borrat && (currentRow+1) > audioFiles.size()){
         currentRow = audioFiles.size() -1;
-        borrat = false;
-    }else if(borrat && currentRow > 0 && (currentRow+1) < audioFiles.size()){
+    }else if((borrat && currentRow > 0 && (currentRow+1) < audioFiles.size()) || (borrat && currentRow+1 == audioFiles.size() && ultim == false)){
         currentRow -=1;
-        borrat = false;
-    }else if(borrat && currentRow+1 == audioFiles.size() && ultim == false){
-        currentRow -=1;
-        borrat = false;
     }
+    borrat = false;
 
     if(start && audioFiles.size() > 0){
 
@@ -360,10 +360,7 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         ui->play->setIcon(QIcon(":/icons/play3.png"));
         currentAudioIndex = currentRow;
     }
-    layout->removeWidget(rightLabel);
-    rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
-    layout->addWidget(rightLabel);
-    loadStatusBar();
+
 }
 
 
@@ -375,12 +372,36 @@ void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
 
 void MainWindow::on_remove_clicked()
 {
-    num_files = audioFiles.size();
-    audioFiles.remove(currentAudioIndex);
-    borrat = true;
-     ui->playlistWidget->takeItem(currentAudioIndex);
+    if(audioFiles.size() > 0){
+        num_files = audioFiles.size();
+        audioFiles.remove(currentAudioIndex);
+        borrat = true;
+        ui->playlistWidget->takeItem(currentAudioIndex);
+        layout->removeWidget(rightLabel);
+        rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
+        layout->addWidget(rightLabel);
+        loadStatusBar();
+    }else{
+
+    }
+
 }
 
+void MainWindow::on_actionBucle_triggered(){
+    bucle();
+}
+
+void MainWindow::on_actionAleatori_triggered(){
+    sequencial();
+}
+
+void MainWindow::on_actionSortir_triggered(){
+    QApplication::exit();
+}
+
+void MainWindow::on_actionInsertar_Can_triggered(){
+    addAudioFiles();
+}
 void MainWindow::loadStatusBar()
 {
     //ui->statusbar->removeWidget(widget);

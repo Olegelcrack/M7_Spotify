@@ -215,8 +215,86 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuPolla">
+    <property name="title">
+     <string>Opcions</string>
+    </property>
+    <widget class="QMenu" name="menuModes">
+     <property name="title">
+      <string>Modes</string>
+     </property>
+     <addaction name="actionBucle"/>
+     <addaction name="actionAleatori"/>
+    </widget>
+    <addaction name="actionInsertar_Can"/>
+    <addaction name="separator"/>
+    <addaction name="menuModes"/>
+    <addaction name="separator"/>
+    <addaction name="actionSortir"/>
+   </widget>
+   <widget class="QMenu" name="menuAjuda">
+    <property name="title">
+     <string>Ajuda</string>
+    </property>
+   </widget>
+   <addaction name="menuPolla"/>
+   <addaction name="menuAjuda"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionno_para">
+   <property name="text">
+    <string>no para</string>
+   </property>
+  </action>
+  <action name="actionfile_o_edit_o_jo_que_se">
+   <property name="text">
+    <string>file o edit o jo que se</string>
+   </property>
+  </action>
+  <action name="actionsortir">
+   <property name="text">
+    <string>sortir</string>
+   </property>
+  </action>
+  <action name="actionva_parar">
+   <property name="text">
+    <string>va parar</string>
+   </property>
+  </action>
+  <action name="actionInsertar_Can">
+   <property name="text">
+    <string>Insertar Cançó</string>
+   </property>
+  </action>
+  <action name="actionSortir">
+   <property name="text">
+    <string>Sortir</string>
+   </property>
+  </action>
+  <action name="actionBucle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/loop.png</normaloff>:/icons/loop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Bucle</string>
+   </property>
+  </action>
+  <action name="actionAleatori">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/shuffle.png</normaloff>:/icons/shuffle.png</iconset>
+   </property>
+   <property name="text">
+    <string>Aleatori</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="icons.qrc"/>
