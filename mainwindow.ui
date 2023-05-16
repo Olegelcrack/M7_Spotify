@@ -7,11 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>576</width>
-    <height>501</height>
+    <height>479</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>WeMusic</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/headphones.png</normaloff>:/icons/headphones.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
@@ -87,6 +96,9 @@
            <font>
             <pointsize>18</pointsize>
            </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>ArrowCursor</cursorShape>
           </property>
           <property name="text">
            <string/>
@@ -230,15 +242,11 @@
     <addaction name="separator"/>
     <addaction name="menuModes"/>
     <addaction name="separator"/>
+    <addaction name="actionAjuda"/>
+    <addaction name="separator"/>
     <addaction name="actionSortir"/>
    </widget>
-   <widget class="QMenu" name="menuAjuda">
-    <property name="title">
-     <string>Ajuda</string>
-    </property>
-   </widget>
    <addaction name="menuPolla"/>
-   <addaction name="menuAjuda"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionno_para">
@@ -293,6 +301,20 @@
    </property>
    <property name="text">
     <string>Aleatori</string>
+   </property>
+  </action>
+  <action name="actionReproduir_Pausar">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/pause2.png</normaloff>:/icons/pause2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pausar</string>
+   </property>
+  </action>
+  <action name="actionAjuda">
+   <property name="text">
+    <string>Ajuda</string>
    </property>
   </action>
  </widget>

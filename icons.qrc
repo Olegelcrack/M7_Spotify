@@ -17,5 +17,6 @@
         <file>icons/volume-mute.png</file>
         <file>icons/plus.png</file>
         <file>icons/delete.png</file>
+        <file>icons/headphones.png</file>
     </qresource>
 </RCC>

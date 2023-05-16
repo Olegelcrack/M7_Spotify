@@ -56,6 +56,10 @@ private slots:
     void on_actionSortir_triggered();
     void on_actionInsertar_Can_triggered();
 
+    void changeLeftLabelText();
+    void Notificacio();
+    void EstatCanco();
+    void on_actionAjuda_triggered();
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;
@@ -66,7 +70,7 @@ private:
     QPushButton *afegirMusica;
     int currentAudioIndex = 0;
     bool isPlaying = false;
-    QString primer = "";
+    bool primer = false;
     bool sequencial2 = false;
     bool bucle2 = false;
     QSet<int> usedNumbers;
@@ -79,5 +83,8 @@ private:
     QWidget *widget = new QWidget();
     QHBoxLayout *layout = new QHBoxLayout();
     int num_files;
+    QString newText = "";
+    QTimer* sequencialTimer = nullptr;
+    QString textActual;
 };
 #endif // MAINWINDOW_H

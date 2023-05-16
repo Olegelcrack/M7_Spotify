@@ -1,9 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "windowhelp.h"
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QFileDialog>
 #include <QSlider>
+#include <QTimer>
 #include <random>
 #include <stdlib.h>
 #include <QPropertyAnimation>
@@ -65,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Status bar Labels
 
-    leftLabel = new QLabel("HEHEHE una prova ta mare");
+    leftLabel = new QLabel("Cap Cançó Seleccionada");
     //leftLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     leftLabel->setFont(QFont("Sans Serif", 11));
 
@@ -102,7 +104,8 @@ void MainWindow::playAudio()
 {
     if (!audioFiles.isEmpty()) {
 
-        if(primer ==""){
+        if(primer ==false){
+            start = true;
             QString currentFile = audioFiles[currentAudioIndex];
             QUrl url = QUrl::fromLocalFile(currentFile);
             player->setSource(url);
@@ -112,18 +115,23 @@ void MainWindow::playAudio()
             ui->canco->setText(fileNameWithoutExtension);
             player->play();
             ui->play->setIcon(QIcon(":/icons/pause2.png"));
-            primer = "cargat";
+            primer = true;
+            leftLabel->setText("Reproduint Cançó");
+            isPlaying = true;
         }else{
-            if (!isPlaying) {
+            if (isPlaying) {
                 player->pause();
                 ui->play->setIcon(QIcon(":/icons/play3.png"));
+                leftLabel->setText("Cançó Pausada");
             } else {
                 player->play();
                 ui->play->setIcon(QIcon(":/icons/pause2.png"));
+                leftLabel->setText("Reproduint Cançó");
 
             }
             isPlaying = !isPlaying;
         }
+        Notificacio();
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
     }
 }
@@ -132,7 +140,7 @@ void MainWindow::playAudio()
 void MainWindow::on_stop_clicked()
 {
     player->stop();
-    isPlaying = true;
+    isPlaying = false;
     ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
@@ -168,7 +176,7 @@ void MainWindow::nextAudio()
         return;
     }
     if(bucle2){
-            primer = "";
+            primer = false;
             playAudio();
     }else{
         if(sequencial2){
@@ -195,6 +203,9 @@ void MainWindow::nextAudio()
         player->play();
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
+        EstatCanco();
+        leftLabel->setText(textActual.append(" - Següent Cançó"));
+        Notificacio();
     }
 }
 
@@ -204,7 +215,7 @@ void MainWindow::previousAudio()
         return;
     }
     if(bucle2){
-            primer = "";
+            primer = false;
             playAudio();
     }else{
         if(sequencial2){
@@ -247,6 +258,9 @@ void MainWindow::previousAudio()
         player->play();
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
+        EstatCanco();
+        leftLabel->setText(textActual.append(" - Cançó Anterior"));
+        Notificacio();
     }
 }
 
@@ -263,10 +277,13 @@ void MainWindow::addAudioFiles()
             }
         }
         layout->removeWidget(rightLabel);
-        rightLabel->setText(QString::number(files.size()) + " cançons afegides");
+        rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
         layout->addWidget(rightLabel);
         loadStatusBar();
     }
+    EstatCanco();
+    leftLabel->setText(textActual.append(" - Cançó Afegida"));
+    Notificacio();
 }
 
 void MainWindow::audioAcabat(QMediaPlayer::MediaStatus state)
@@ -284,7 +301,11 @@ void MainWindow::endavantAudio()
             nextAudio();
         } else {
             player->setPosition(newPos);
+            EstatCanco();
+            leftLabel->setText(textActual.append(" - Adelantant Cançó 5 segons"));
+            Notificacio();
         }
+
 
 }
 
@@ -293,30 +314,47 @@ void MainWindow::enrrereAudio()
     qint64 newPos = player->position() - 5000;
     if (newPos < 0) newPos = 0;
     player->setPosition(newPos);
+    EstatCanco();
+    leftLabel->setText(textActual.append(" - Endarrerint Cançó 5 segons"));
+    Notificacio();
 }
 
 void MainWindow::sequencial() {
     sequencial2 = !sequencial2;
+    EstatCanco();
     if (sequencial2) {
         ui->actionAleatori->setChecked(true);
         ui->sequencial->setStyleSheet("background-color: #00FF00");
+        leftLabel->setText(textActual.append(" - Aleatori Activat"));
+
     } else {
         ui->actionAleatori->setChecked(false);
         ui->sequencial->setStyleSheet("");
+        leftLabel->setText(textActual.append(" - Aleatori Desactivat"));
     }
+   Notificacio();
+
+
+    //QTimer::singleShot(2000, this, SLOT(changeLeftLabelText()));
+
 }
 
 void MainWindow::bucle() {
 
     bucle2 = !bucle2;
+    EstatCanco();
     if (bucle2) {
         ui->actionBucle->setChecked(true);
          ui->bucle->setStyleSheet("background-color: #00FF00");
+         leftLabel->setText(textActual.append(" - Bucle Activat"));
        } else {
         ui->actionBucle->setChecked(false);
          ui->bucle->setStyleSheet("");
+         leftLabel->setText(textActual.append(" - Bucle Desactivat"));
 
       }
+    Notificacio();
+    //QTimer::singleShot(2000, this, SLOT(changeLeftLabelText()));
 
 }
 
@@ -335,7 +373,6 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
     if(start && audioFiles.size() > 0){
 
         currentAudioIndex = currentRow;
-        //qDebug() << audioFiles[currentAudioIndex];
         QString currentFile = audioFiles[currentAudioIndex];
         QUrl url = QUrl::fromLocalFile(currentFile);
         player->setSource(url);
@@ -343,9 +380,9 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         QString fileName = fileInfo.fileName();
         QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
         ui->canco->setText(fileNameWithoutExtension);
-        isPlaying = false;
+        isPlaying = true;
         player->play();
-        primer = "cargat";
+        primer = true;
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         if(currentRow+1 == audioFiles.size()){
             ultim = true;
@@ -354,11 +391,13 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
         }
 
      }else{
+        isPlaying = false;
         start = true;
         player->stop();
         ui->canco->clear();
         ui->play->setIcon(QIcon(":/icons/play3.png"));
         currentAudioIndex = currentRow;
+
     }
 
 }
@@ -381,6 +420,9 @@ void MainWindow::on_remove_clicked()
         rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
         layout->addWidget(rightLabel);
         loadStatusBar();
+        EstatCanco();
+        leftLabel->setText(textActual.append(" - Cançó Eliminada"));
+        Notificacio();
     }else{
 
     }
@@ -402,10 +444,60 @@ void MainWindow::on_actionSortir_triggered(){
 void MainWindow::on_actionInsertar_Can_triggered(){
     addAudioFiles();
 }
+
+void MainWindow::on_actionAjuda_triggered(){
+    windowhelp *helpWindow = new windowhelp(this);
+    helpWindow->show();
+}
 void MainWindow::loadStatusBar()
 {
     //ui->statusbar->removeWidget(widget);
     ui->statusbar->addWidget(widget, 1);
+}
+
+void MainWindow::changeLeftLabelText()
+{
+    if(audioFiles.size() > 0){
+        if(!isPlaying){
+            newText = "Cançó Pausada";
+        }else{
+            newText = "Reproduint Cançó";
+
+        }
+    }else{
+        newText = "No hi ha cap cançó afegida";
+    }
+    leftLabel->setText(newText);
+    loadStatusBar();
+}
+
+void MainWindow::EstatCanco(){
+    if(audioFiles.size() > 0){
+        if(!isPlaying){
+            textActual = "Cançó Pausada";
+        }else{
+            textActual = "Reproduint Cançó";
+
+        }
+    }else{
+        textActual = "No hi ha cap cançó afegida";
+    }
+
+}
+
+void MainWindow::Notificacio()
+{
+
+    if (sequencialTimer) {
+        sequencialTimer->stop();
+        delete sequencialTimer;
+        sequencialTimer = nullptr;
+    } else {
+
+    }
+    sequencialTimer = new QTimer(this);
+    connect(sequencialTimer, SIGNAL(timeout()), this, SLOT(changeLeftLabelText()));
+    sequencialTimer->start(2000);
 }
 
 
