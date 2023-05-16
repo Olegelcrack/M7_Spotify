@@ -175,9 +175,11 @@ void MainWindow::nextAudio()
     if (audioFiles.isEmpty()) {
         return;
     }
+    EstatCanco();
     if(bucle2){
             primer = false;
             playAudio();
+            leftLabel->setText(textActual.append(" - Repetint Cançó"));
     }else{
         if(sequencial2){
             int randomIndex = rand() % audioFiles.count();
@@ -189,8 +191,10 @@ void MainWindow::nextAudio()
             if (usedNumbers.count() == audioFiles.count()) {
                  usedNumbers.clear();
             }
+            leftLabel->setText(textActual.append(" - Cançó Aleatoria"));
         }else{
             currentAudioIndex = (currentAudioIndex + 1) % audioFiles.count();
+            leftLabel->setText(textActual.append(" - Següent Cançó"));
 
         }
         QString currentFile = audioFiles[currentAudioIndex];
@@ -203,8 +207,8 @@ void MainWindow::nextAudio()
         player->play();
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
-        EstatCanco();
-        leftLabel->setText(textActual.append(" - Següent Cançó"));
+
+
         Notificacio();
     }
 }
@@ -214,15 +218,18 @@ void MainWindow::previousAudio()
     if (audioFiles.isEmpty()) {
         return;
     }
+    EstatCanco();
     if(bucle2){
             primer = false;
             playAudio();
+            leftLabel->setText(textActual.append(" - Repetint Cançó"));
     }else{
         if(sequencial2){
             qint64 newPos = player->position();
             if (newPos > 2000){
                 newPos = 0;
                 player->setPosition(newPos);
+                leftLabel->setText(textActual.append(" - Començant cançó de nou"));
             }else{
                 int randomIndex = rand() % audioFiles.count();
                 while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
@@ -233,18 +240,25 @@ void MainWindow::previousAudio()
                 if (usedNumbers.count() == audioFiles.count()) {
                      usedNumbers.clear();
                 }
+                leftLabel->setText(textActual.append(" - Cançó Aleatoria"));
             }
         }else{
             qint64 newPos = player->position();
             if (newPos > 2000){
                 newPos = 0;
                 player->setPosition(newPos);
+                leftLabel->setText(textActual.append(" - Començant cançó de nou"));
             }else{
 
                 currentAudioIndex--;
+
                 if (currentAudioIndex < 0) {
                     currentAudioIndex = 0;
+                    leftLabel->setText(textActual.append(" - Començant cançó de nou"));
+                }else{
+                    leftLabel->setText(textActual.append(" - Cançó Anterior"));
                 }
+
 
             }
         }
@@ -258,8 +272,7 @@ void MainWindow::previousAudio()
         player->play();
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
-        EstatCanco();
-        leftLabel->setText(textActual.append(" - Cançó Anterior"));
+
         Notificacio();
     }
 }
