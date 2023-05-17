@@ -45,7 +45,7 @@ private slots:
 
     void on_playlistWidget_currentRowChanged(int currentRow);
 
-    void on_playlistWidget_itemClicked(QListWidgetItem *item);
+    void on_playlistWidget_itemClicked();
 
     void loadStatusBar();
 
@@ -60,6 +60,8 @@ private slots:
     void Notificacio();
     void EstatCanco();
     void on_actionAjuda_triggered();
+    void loadPlaylist();
+    void savePlaylist();
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;
@@ -86,5 +88,6 @@ private:
     QString newText = "";
     QTimer* sequencialTimer = nullptr;
     QString textActual;
+    QString playlistFilePath;
 };
 #endif // MAINWINDOW_H

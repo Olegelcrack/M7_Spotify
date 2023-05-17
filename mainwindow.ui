@@ -198,7 +198,10 @@
         <item>
          <widget class="QLabel" name="volum">
           <property name="text">
-           <string>Volum</string>
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="icons.qrc">:/icons/volume-medium.png</pixmap>
           </property>
          </widget>
         </item>

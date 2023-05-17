@@ -11,6 +11,7 @@
 #include <QPropertyAnimation>
 #include <QLabel>
 #include <QFont>
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,17 +22,17 @@ MainWindow::MainWindow(QWidget *parent)
     audioOutput = new QAudioOutput();
     player->setAudioOutput(audioOutput);
 
-    ui->play->setIcon(QIcon(":/icons/play3.png"));
-    ui->next->setIcon(QIcon(":/icons/next2.png"));
-    ui->previous->setIcon(QIcon(":/icons/previous2.png"));
-    ui->stop->setIcon(QIcon(":/icons/stop2.png"));
-    ui->mes->setIcon(QIcon(":/icons/forward3.png"));
-    ui->menys->setIcon(QIcon(":/icons/backward2.png"));
-    ui->sequencial->setIcon(QIcon(":/icons/shuffle.png"));
-    ui->bucle->setIcon(QIcon(":/icons/loop.png"));
-    ui->afegirMusica->setIcon(QIcon(":/icons/plus.png"));
-    QPixmap pixmap(":/icons/volume-medium.png");
-    ui->volum->setPixmap(pixmap);
+    //  Shortcuts
+
+    QShortcut *scSpace = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    QShortcut *scForward = new QShortcut(QKeySequence(Qt::Key_Right), this);
+    QShortcut *scBackward = new QShortcut(QKeySequence(Qt::Key_Left), this);
+    QShortcut *scNext = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right), this);
+    QShortcut *scPrevious = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Left), this);
+    QShortcut *scVolumeDown = new QShortcut(QKeySequence(Qt::Key_Down), this);
+    QShortcut *scVolumeUp = new QShortcut(QKeySequence(Qt::Key_Up), this);
+    QShortcut *scRemove = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    //  Connects
 
     connect(player, &QMediaPlayer::positionChanged, this, &MainWindow::positionChanged);
     connect(player, &QMediaPlayer::durationChanged, this, &MainWindow::durationChanged);
@@ -41,11 +42,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->previous, &QPushButton::clicked, this, &MainWindow::previousAudio);
     connect(player, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::audioAcabat);
 
-    connect(ui->volumeSlider, &QSlider::sliderMoved, this, &MainWindow::volumen);
+    connect(ui->volumeSlider, &QSlider::valueChanged, this, &MainWindow::volumen);
     connect(ui->mes, &QPushButton::clicked, this, &MainWindow::endavantAudio);
     connect(ui->menys, &QPushButton::clicked, this, &MainWindow::enrrereAudio);
     connect(ui->sequencial, &QPushButton::clicked, this, &MainWindow::sequencial);
     connect(ui->bucle, &QPushButton::clicked, this, &MainWindow::bucle);
+    connect(scSpace, &QShortcut::activated, this, &MainWindow::playAudio);
+    connect(scForward, &QShortcut::activated, this, &MainWindow::endavantAudio);
+    connect(scBackward, &QShortcut::activated, this, &MainWindow::enrrereAudio);
+    connect(scNext, &QShortcut::activated, this, &MainWindow::nextAudio);
+    connect(scPrevious, &QShortcut::activated, this, &MainWindow::previousAudio);
+    QSlider *vol = ui->volumeSlider;
+    connect(scVolumeDown, &QShortcut::activated, this, [vol]() {
+        int currentValue = vol->value();
+        vol->setValue(currentValue - 10);
+    });
+
+    connect(scVolumeUp, &QShortcut::activated, this, [vol]() {
+        int currentValue = vol->value();
+        vol->setValue(currentValue + 10);
+    });
+    connect(scRemove, &QShortcut::activated, this, &MainWindow::on_remove_clicked);
+
 
     ui->volumeSlider->setMaximumWidth(200);
     ui->volumeSlider->setMinimumWidth(50);
@@ -55,24 +73,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->positionSlider, &QSlider::sliderMoved, this, &MainWindow::setMPPosition);
     ui->canco->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
-    QString playlistFolder = QCoreApplication::applicationDirPath() + "/../../M7_Spotify/playlist";
-    QDir playlistDir(playlistFolder);
-    QStringList playlist = playlistDir.entryList(QStringList() << "*.mp3" << "*.wav", QDir::Files);
-    for (int i = 0; i < playlist.size(); i++) {
-        QString filePath = playlistDir.filePath(playlist[i]);
-        audioFiles.append(filePath);
-        QFileInfo fileInfo(filePath);
-        ui->playlistWidget->addItem(fileInfo.fileName());
-    }
+    playlistFilePath = QCoreApplication::applicationDirPath() + "/playlist.txt";
+    loadPlaylist();
 
     //Status bar Labels
+    if(audioFiles.size() > 0){
+        leftLabel = new QLabel("Cap cançó seleccionada");
+    }else{
+        leftLabel = new QLabel("No hi ha cap cançó afegida");
+    }
 
-    leftLabel = new QLabel("Cap Cançó Seleccionada");
-    //leftLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     leftLabel->setFont(QFont("Sans Serif", 11));
 
-    rightLabel = new QLabel(QString::number(playlist.size()) + " cançons afegides");
-    //rightLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    rightLabel = new QLabel(QString::number(audioFiles.size()) + " cançons afegides");
     rightLabel->setFont(QFont("Sans Serif", 11));
 
 
@@ -281,6 +294,7 @@ void MainWindow::previousAudio()
 void MainWindow::addAudioFiles()
 {
     QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Audio Files"), QDir::homePath(), tr("Audio Files (*.mp3 *.mp4)"));
+    EstatCanco();
     if (!files.isEmpty()) {
         foreach (QString filePath, files) {
             if (!audioFiles.contains(filePath)) {
@@ -293,9 +307,13 @@ void MainWindow::addAudioFiles()
         rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
         layout->addWidget(rightLabel);
         loadStatusBar();
+        leftLabel->setText("Cançó Afegida");
+        savePlaylist();
+    }else{
+        leftLabel->setText(textActual.append(" - Cap Cançó Afegida"));
     }
-    EstatCanco();
-    leftLabel->setText(textActual.append(" - Cançó Afegida"));
+
+
     Notificacio();
 }
 
@@ -416,9 +434,10 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 }
 
 
-void MainWindow::on_playlistWidget_itemClicked(QListWidgetItem *item)
+void MainWindow::on_playlistWidget_itemClicked()
 {
     on_playlistWidget_currentRowChanged(currentAudioIndex);
+    changeLeftLabelText();
 
 }
 
@@ -471,11 +490,15 @@ void MainWindow::loadStatusBar()
 void MainWindow::changeLeftLabelText()
 {
     if(audioFiles.size() > 0){
-        if(!isPlaying){
-            newText = "Cançó Pausada";
+        if(ui->playlistWidget->selectedItems().size() == 0){
+                newText = "";
         }else{
-            newText = "Reproduint Cançó";
+            if(!isPlaying){
+                newText = "Cançó Pausada";
+            }else{
+                newText = "Reproduint Cançó";
 
+            }
         }
     }else{
         newText = "No hi ha cap cançó afegida";
@@ -486,12 +509,14 @@ void MainWindow::changeLeftLabelText()
 
 void MainWindow::EstatCanco(){
     if(audioFiles.size() > 0){
-        if(!isPlaying){
-            textActual = "Cançó Pausada";
-        }else{
-            textActual = "Reproduint Cançó";
 
-        }
+            if(!isPlaying){
+                textActual = "Cançó Pausada";
+            }else{
+                textActual = "Reproduint Cançó";
+
+            }
+
     }else{
         textActual = "No hi ha cap cançó afegida";
     }
@@ -500,6 +525,7 @@ void MainWindow::EstatCanco(){
 
 void MainWindow::Notificacio()
 {
+
 
     if (sequencialTimer) {
         sequencialTimer->stop();
@@ -514,4 +540,37 @@ void MainWindow::Notificacio()
 }
 
 
+void MainWindow::savePlaylist()
+{
+    QFile file(playlistFilePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream stream(&file);
+        for (const QString& filePath : audioFiles) {
+            stream << filePath << "\n";
+        }
+        file.close();
+    } else {
+        // Error al abrir el archivo
+    }
+}
 
+
+void MainWindow::loadPlaylist()
+{
+    QFile file(playlistFilePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream stream(&file);
+        while (!stream.atEnd()) {
+            QString filePath = stream.readLine();
+            if (!filePath.isEmpty() && !audioFiles.contains(filePath)) {
+                audioFiles.append(filePath);
+                QFileInfo fileInfo(filePath);
+                ui->playlistWidget->addItem(fileInfo.fileName());
+            }
+        }
+        file.close();
+
+    } else {
+        // Error al abrir el archivo
+    }
+}
