@@ -455,6 +455,7 @@ void MainWindow::on_remove_clicked()
         EstatCanco();
         leftLabel->setText(textActual.append(" - Cançó Eliminada"));
         Notificacio();
+        savePlaylist();
     }else{
 
     }
