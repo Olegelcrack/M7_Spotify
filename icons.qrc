@@ -18,5 +18,19 @@
         <file>icons/plus.png</file>
         <file>icons/delete.png</file>
         <file>icons/headphones.png</file>
+        <file>icons/arrow-down.png</file>
+        <file>icons/arrow-left.png</file>
+        <file>icons/arrow-right.png</file>
+        <file>icons/arrow-up.png</file>
+        <file>icons/control.png</file>
+        <file>icons/delete2.png</file>
+        <file>icons/space.png</file>
+        <file>icons/keyboard.png</file>
+        <file>icons/press-button.png</file>
+        <file>icons/add-folder.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/question.png</file>
+        <file>icons/switch.png</file>
+        <file>icons/sync_alt.png</file>
     </qresource>
 </RCC>

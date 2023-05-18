@@ -207,6 +207,16 @@
         </item>
        </layout>
       </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="duracio">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="1" column="0">
@@ -240,6 +250,7 @@
      </property>
      <addaction name="actionBucle"/>
      <addaction name="actionAleatori"/>
+     <addaction name="actionContinua"/>
     </widget>
     <addaction name="actionInsertar_Can"/>
     <addaction name="separator"/>
@@ -273,11 +284,19 @@
    </property>
   </action>
   <action name="actionInsertar_Can">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/add-folder.png</normaloff>:/icons/add-folder.png</iconset>
+   </property>
    <property name="text">
     <string>Insertar Cançó</string>
    </property>
   </action>
   <action name="actionSortir">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/exit.png</normaloff>:/icons/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Sortir</string>
    </property>
@@ -316,8 +335,21 @@
    </property>
   </action>
   <action name="actionAjuda">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/question.png</normaloff>:/icons/question.png</iconset>
+   </property>
    <property name="text">
     <string>Ajuda</string>
+   </property>
+  </action>
+  <action name="actionContinua">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/sync_alt.png</normaloff>:/icons/sync_alt.png</iconset>
+   </property>
+   <property name="text">
+    <string>Continua</string>
    </property>
   </action>
  </widget>

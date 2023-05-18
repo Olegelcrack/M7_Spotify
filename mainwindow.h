@@ -49,8 +49,6 @@ private slots:
 
     void loadStatusBar();
 
-    void on_remove_clicked();
-
     void on_actionBucle_triggered();
     void on_actionAleatori_triggered();
     void on_actionSortir_triggered();
@@ -62,6 +60,9 @@ private slots:
     void on_actionAjuda_triggered();
     void loadPlaylist();
     void savePlaylist();
+    void on_actionContinua_triggered();
+    void remove();
+    void updatePositionLabel(qint64 position);
 private:
     Ui::MainWindow *ui;
     QMediaPlayer *player;
@@ -75,6 +76,7 @@ private:
     bool primer = false;
     bool sequencial2 = false;
     bool bucle2 = false;
+    bool continua2 = false;
     QSet<int> usedNumbers;
     bool start = false;
     bool borrat = false;

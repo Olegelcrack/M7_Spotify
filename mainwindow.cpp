@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     audioOutput = new QAudioOutput();
     player->setAudioOutput(audioOutput);
 
-    //  Shortcuts
+    //  Shortcuts per el teclat
 
     QShortcut *scSpace = new QShortcut(QKeySequence(Qt::Key_Space), this);
     QShortcut *scForward = new QShortcut(QKeySequence(Qt::Key_Right), this);
@@ -32,10 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
     QShortcut *scVolumeDown = new QShortcut(QKeySequence(Qt::Key_Down), this);
     QShortcut *scVolumeUp = new QShortcut(QKeySequence(Qt::Key_Up), this);
     QShortcut *scRemove = new QShortcut(QKeySequence(Qt::Key_Delete), this);
-    //  Connects
 
+    //  Connects els cuals creem per definir que fa cada botó, shortcut o algo que faci el player
     connect(player, &QMediaPlayer::positionChanged, this, &MainWindow::positionChanged);
     connect(player, &QMediaPlayer::durationChanged, this, &MainWindow::durationChanged);
+    connect(player, &QMediaPlayer::positionChanged, this, &MainWindow::updatePositionLabel);
     connect(ui->play, &QPushButton::clicked, this, &MainWindow::playAudio);
     connect(ui->afegirMusica, &QPushButton::clicked, this, &MainWindow::addAudioFiles);
     connect(ui->next, &QPushButton::clicked, this, &MainWindow::nextAudio);
@@ -62,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
         int currentValue = vol->value();
         vol->setValue(currentValue + 10);
     });
-    connect(scRemove, &QShortcut::activated, this, &MainWindow::on_remove_clicked);
+    connect(scRemove, &QShortcut::activated, this, &MainWindow::remove);
 
 
     ui->volumeSlider->setMaximumWidth(200);
@@ -78,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Status bar Labels
     if(audioFiles.size() > 0){
-        leftLabel = new QLabel("Cap cançó seleccionada");
+        leftLabel = new QLabel("");
     }else{
         leftLabel = new QLabel("No hi ha cap cançó afegida");
     }
@@ -103,6 +104,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//Funció que utilitzem per canviar la posició de la cançó amb el slider
 void MainWindow::positionChanged(qint64 position)
 {
     ui->positionSlider->setValue(position / 1000);
@@ -113,11 +115,12 @@ void MainWindow::durationChanged(qint64 duration)
     ui->positionSlider->setRange(0, duration / 1000);
 }
 
+//Funció per pausar/reproduir la cançó
 void MainWindow::playAudio()
 {
     if (!audioFiles.isEmpty()) {
 
-        if(primer ==false){
+        if(primer ==false){ //La primera cançó que reproduim fara aquestà condició
             start = true;
             QString currentFile = audioFiles[currentAudioIndex];
             QUrl url = QUrl::fromLocalFile(currentFile);
@@ -132,7 +135,7 @@ void MainWindow::playAudio()
             leftLabel->setText("Reproduint Cançó");
             isPlaying = true;
         }else{
-            if (isPlaying) {
+            if (isPlaying) { //Comprobem que s'estigui reproduint, si s'està reproduint i fem click es posarà en pausa i sinó es reproduirà
                 player->pause();
                 ui->play->setIcon(QIcon(":/icons/play3.png"));
                 leftLabel->setText("Cançó Pausada");
@@ -142,14 +145,14 @@ void MainWindow::playAudio()
                 leftLabel->setText("Reproduint Cançó");
 
             }
-            isPlaying = !isPlaying;
+            isPlaying = !isPlaying; //Posem el boolean de isPlaying al contrari del que estaba
         }
         Notificacio();
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
     }
 }
 
-
+//Funció per parar el reproductor
 void MainWindow::on_stop_clicked()
 {
     player->stop();
@@ -157,6 +160,7 @@ void MainWindow::on_stop_clicked()
     ui->play->setIcon(QIcon(":/icons/play3.png"));
 }
 
+//Funció per definir el volumen del reproductor
 void MainWindow::volumen(double value)
 {
     audioOutput->setVolume(value/100);
@@ -182,32 +186,48 @@ void MainWindow::setMPPosition(int position)
     player->setPosition(position * 1000);
 }
 
+//Aquesta funció es la que utilitzem per a que aparegui els minuts i segons actuals de la cançó
+void MainWindow::updatePositionLabel(qint64 position)
+{
+    int minutes = position / 60000;
+    int seconds = (position % 60000) / 1000;
+    QString positionString = QString("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
+    ui->duracio->setText(positionString);
+}
 
+//Funció que utilitzem per pasar de cançó
 void MainWindow::nextAudio()
 {
-    if (audioFiles.isEmpty()) {
+    if (audioFiles.isEmpty()) { //Si no hi han cançons no fem res
         return;
     }
     EstatCanco();
-    if(bucle2){
+    if(bucle2){ //Comprobem si esta el bucle activat
             primer = false;
-            playAudio();
+            playAudio(); //Si està activat es reproduirà la mateixa cançó tot el rato
             leftLabel->setText(textActual.append(" - Repetint Cançó"));
     }else{
-        if(sequencial2){
-            int randomIndex = rand() % audioFiles.count();
+        if(sequencial2){ //Comprobem si esta el sequencial activat
+            int randomIndex = rand() % audioFiles.count(); //Posem una cançó random mirant que no hagi sortit abans ja creant un randomIndex
             while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
                   randomIndex = rand() % audioFiles.count();
             }
             currentAudioIndex = randomIndex;
-            usedNumbers.insert(currentAudioIndex);
-            if (usedNumbers.count() == audioFiles.count()) {
+            usedNumbers.insert(currentAudioIndex); //Anem afegint les cançons que van sortit
+            if (usedNumbers.count() == audioFiles.count()) { //Quan ja han sortit totes, netejem el usedNumbers i ja poden tornar a sortir totes
                  usedNumbers.clear();
             }
             leftLabel->setText(textActual.append(" - Cançó Aleatoria"));
         }else{
-            currentAudioIndex = (currentAudioIndex + 1) % audioFiles.count();
-            leftLabel->setText(textActual.append(" - Següent Cançó"));
+
+            if(continua2 == false && currentAudioIndex+1 == audioFiles.count()){ //Comprobem que el continua no estigui activat, si està activat reproduim la seguent
+                leftLabel->setText(textActual.append(" - Repetint Cançó")); //Si el continua no està activat la última cançó serà la última i no pararà de reproduir-se
+            }else{
+                currentAudioIndex = (currentAudioIndex + 1) % audioFiles.count();
+                leftLabel->setText(textActual.append(" - Següent Cançó"));
+            }
+
+
 
         }
         QString currentFile = audioFiles[currentAudioIndex];
@@ -217,7 +237,7 @@ void MainWindow::nextAudio()
         QString fileName = fileInfo.fileName();
         QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
         ui->canco->setText(fileNameWithoutExtension);
-        player->play();
+        player->play(); //Reproduim la cançó depenent del currentAudioIndex que haguem obtingut en les condicions
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
 
@@ -226,36 +246,37 @@ void MainWindow::nextAudio()
     }
 }
 
+//Funció que utilitzem per anar a l'anterior Cançó
 void MainWindow::previousAudio()
 {
-    if (audioFiles.isEmpty()) {
+    if (audioFiles.isEmpty()) { //Si no hi han cançons no fem res
         return;
     }
     EstatCanco();
-    if(bucle2){
+    if(bucle2){ //Comprobem si esta el bucle activat
             primer = false;
-            playAudio();
+            playAudio(); //Si està activat es reproduirà la mateixa cançó tot el rato
             leftLabel->setText(textActual.append(" - Repetint Cançó"));
     }else{
-        if(sequencial2){
+        if(sequencial2){ //Comprobem si esta el sequencial activat
             qint64 newPos = player->position();
-            if (newPos > 2000){
+            if (newPos > 2000){ //Comprobem si la cançó porta més de dos segons reproduint-se, si es aixi començem de nou, sino anem a l'anterior cançó
                 newPos = 0;
                 player->setPosition(newPos);
                 leftLabel->setText(textActual.append(" - Començant cançó de nou"));
-            }else{
-                int randomIndex = rand() % audioFiles.count();
+            }else{ //Posem una cançó random mirant que no hagi sortit abans ja
+                int randomIndex = rand() % audioFiles.count(); //Creem un randomIndex per obtenir una cançó random
                 while (randomIndex == currentAudioIndex || usedNumbers.contains(randomIndex)) {
                       randomIndex = rand() % audioFiles.count();
                 }
                 currentAudioIndex = randomIndex;
-                usedNumbers.insert(currentAudioIndex);
-                if (usedNumbers.count() == audioFiles.count()) {
+                usedNumbers.insert(currentAudioIndex); //Anem afegint les cançons que van sortit
+                if (usedNumbers.count() == audioFiles.count()) { //Quan ja han sortit totes, netejem el usedNumbers i ja poden tornar a sortir totes
                      usedNumbers.clear();
                 }
                 leftLabel->setText(textActual.append(" - Cançó Aleatoria"));
             }
-        }else{
+        }else{ //En cas de no ser ni sequencial ni bucle anem a l'anterior cançó i ja està
             qint64 newPos = player->position();
             if (newPos > 2000){
                 newPos = 0;
@@ -265,7 +286,7 @@ void MainWindow::previousAudio()
 
                 currentAudioIndex--;
 
-                if (currentAudioIndex < 0) {
+                if (currentAudioIndex < 0) { //En cas de ser la primera cançó hi vols tirar enrrere no pots i començes de nou amb la primera
                     currentAudioIndex = 0;
                     leftLabel->setText(textActual.append(" - Començant cançó de nou"));
                 }else{
@@ -282,7 +303,7 @@ void MainWindow::previousAudio()
         QString fileName = fileInfo.fileName();
         QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
         ui->canco->setText(fileNameWithoutExtension);
-        player->play();
+        player->play(); //Reproduim la cançó depenent del currentAudioIndex que haguem obtingut en les condicions
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
         ui->playlistWidget->setCurrentRow(currentAudioIndex);
 
@@ -290,13 +311,13 @@ void MainWindow::previousAudio()
     }
 }
 
-
+//Funció que utilitzem per afegir cançons al reproductor
 void MainWindow::addAudioFiles()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Audio Files"), QDir::homePath(), tr("Audio Files (*.mp3 *.mp4)"));
+    QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Audio Files"), QDir::homePath(), tr("Audio Files (*.mp3 *.mp4)")); //Obrim el explorador d'arxius
     EstatCanco();
-    if (!files.isEmpty()) {
-        foreach (QString filePath, files) {
+    if (!files.isEmpty()) { //Comprobem si s'ha seleccionat algun arxiu
+        foreach (QString filePath, files) { //Afegim tots els arxius que s'han seleccionat amb un bucle
             if (!audioFiles.contains(filePath)) {
                 audioFiles.append(filePath);
                 QFileInfo fileInfo(filePath);
@@ -306,17 +327,18 @@ void MainWindow::addAudioFiles()
         layout->removeWidget(rightLabel);
         rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
         layout->addWidget(rightLabel);
-        loadStatusBar();
+        loadStatusBar(); //Actualitzem la statusBar
         leftLabel->setText("Cançó Afegida");
         savePlaylist();
     }else{
-        leftLabel->setText(textActual.append(" - Cap Cançó Afegida"));
+        leftLabel->setText(textActual.append(" - Cap Cançó Afegida")); //En cas de no afegir cap cançó apareixerà això al statusBar
     }
 
 
     Notificacio();
 }
 
+//Funció que es crida en pic ha acabat un audio i comença automaticament pel seguent cridant a la fucnió nextAudio()
 void MainWindow::audioAcabat(QMediaPlayer::MediaStatus state)
 {
     if (state == QMediaPlayer::EndOfMedia) {
@@ -326,10 +348,10 @@ void MainWindow::audioAcabat(QMediaPlayer::MediaStatus state)
 
 void MainWindow::endavantAudio()
 {
-    qint64 newPos = player->position() + 5000;
+    qint64 newPos = player->position() + 5000; //Li sumem 5 segons a la posició actual del reproductor
 
     if (newPos >= player->duration()) {
-            nextAudio();
+            nextAudio(); //Si la posició nova és més gran que el audio pasem a la següent cançó
         } else {
             player->setPosition(newPos);
             EstatCanco();
@@ -340,28 +362,41 @@ void MainWindow::endavantAudio()
 
 }
 
+//Funció que cridem per tirar enrrere l'audio 5 segons
 void MainWindow::enrrereAudio()
 {
-    qint64 newPos = player->position() - 5000;
-    if (newPos < 0) newPos = 0;
+    qint64 newPos = player->position() - 5000; //Li restem 5 segons a la posició actual del reproductor
+    if (newPos < 0) newPos = 0; //Si es -0 fem que la cançó començi pel principi
     player->setPosition(newPos);
     EstatCanco();
     leftLabel->setText(textActual.append(" - Endarrerint Cançó 5 segons"));
     Notificacio();
 }
 
+//Funció que cridem per fer el sequencial i continua
 void MainWindow::sequencial() {
-    sequencial2 = !sequencial2;
     EstatCanco();
-    if (sequencial2) {
+    if (sequencial2 == false && continua2==false) {//Comprobem que no hi hagi cap dels dos activats amb dos booleans
+        sequencial2 = true; //Si els dos estan desactivats activem el sequencial
         ui->actionAleatori->setChecked(true);
         ui->sequencial->setStyleSheet("background-color: #00FF00");
         leftLabel->setText(textActual.append(" - Aleatori Activat"));
 
     } else {
-        ui->actionAleatori->setChecked(false);
-        ui->sequencial->setStyleSheet("");
-        leftLabel->setText(textActual.append(" - Aleatori Desactivat"));
+        if(continua2==false){ //Si el sequencial està activat i tornem a fer click activem el continua
+            sequencial2 = false; //Posem el sequencial a false
+            ui->sequencial->setIcon(QIcon(":/icons/sync_alt.png"));
+            continua2 = true; //I el continua a true
+            ui->sequencial->setStyleSheet("background-color: #00FFFF");
+            leftLabel->setText(textActual.append(" - Continu Activat"));
+        }else{
+            continua2 = false; //Si el continua esta activat el seguent cop que clickem el desactivarem i començarem la condició pel principi un altre cop
+            ui->sequencial->setIcon(QIcon(":/icons/shuffle.png"));
+            ui->actionAleatori->setChecked(false);
+            ui->sequencial->setStyleSheet("");
+            leftLabel->setText(textActual.append(" - Continu Desactivat"));
+        }
+
     }
    Notificacio();
 
@@ -370,16 +405,17 @@ void MainWindow::sequencial() {
 
 }
 
+//Funció que utilitzem pel bucle
 void MainWindow::bucle() {
 
     bucle2 = !bucle2;
     EstatCanco();
-    if (bucle2) {
-        ui->actionBucle->setChecked(true);
+    if (bucle2) { //Comprobem si es true o false
+        ui->actionBucle->setChecked(true); //El posem checked i el pintem de color
          ui->bucle->setStyleSheet("background-color: #00FF00");
          leftLabel->setText(textActual.append(" - Bucle Activat"));
        } else {
-        ui->actionBucle->setChecked(false);
+        ui->actionBucle->setChecked(false); //Li treiem el checked i el color
          ui->bucle->setStyleSheet("");
          leftLabel->setText(textActual.append(" - Bucle Desactivat"));
 
@@ -390,9 +426,11 @@ void MainWindow::bucle() {
 }
 
 
+
+//Funció la cual reprodueix una cançó de la llista quan fem clic a sobre
 void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 {
-    if (borrat && currentRow < 0) {
+    if (borrat && currentRow < 0) { //Condicions en cas de eliminar la primera cançó, la última o la antepenultima, per evitar que elimini quina no és
         currentRow += 1;
     }else if(borrat && (currentRow+1) > audioFiles.size()){
         currentRow = audioFiles.size() -1;
@@ -401,21 +439,21 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
     }
     borrat = false;
 
-    if(start && audioFiles.size() > 0){
+    if(start && audioFiles.size() > 0){ //Per evitar que començi just al iniciar el programa creem boolean start i comprobem que hi hagin cançons afegides
 
         currentAudioIndex = currentRow;
         QString currentFile = audioFiles[currentAudioIndex];
         QUrl url = QUrl::fromLocalFile(currentFile);
-        player->setSource(url);
+        player->setSource(url); //carguem la cançó seleccionada
         QFileInfo fileInfo(currentFile);
         QString fileName = fileInfo.fileName();
         QString fileNameWithoutExtension = fileName.left(fileName.length() - 4);
         ui->canco->setText(fileNameWithoutExtension);
         isPlaying = true;
-        player->play();
+        player->play(); //Reproduim la cançó
         primer = true;
         ui->play->setIcon(QIcon(":/icons/pause2.png"));
-        if(currentRow+1 == audioFiles.size()){
+        if(currentRow+1 == audioFiles.size()){ //Condició per saber si el que s'ha seleccionat és l'últim o no
             ultim = true;
         }else{
             ultim = false;
@@ -433,7 +471,7 @@ void MainWindow::on_playlistWidget_currentRowChanged(int currentRow)
 
 }
 
-
+//Funció que crida a la funció de currentRowChanged, la cual selecciona una cançó de la llista i la reprodueix
 void MainWindow::on_playlistWidget_itemClicked()
 {
     on_playlistWidget_currentRowChanged(currentAudioIndex);
@@ -441,32 +479,36 @@ void MainWindow::on_playlistWidget_itemClicked()
 
 }
 
-void MainWindow::on_remove_clicked()
+//Funció per eliminar una cançó
+void MainWindow::remove()
 {
-    if(audioFiles.size() > 0){
+    if(audioFiles.size() > 0){ //Comprobem que hi hagin cançons introduides
         num_files = audioFiles.size();
-        audioFiles.remove(currentAudioIndex);
+        audioFiles.remove(currentAudioIndex); //Borrem la cançó del QList AudioFiles
         borrat = true;
-        ui->playlistWidget->takeItem(currentAudioIndex);
+        ui->playlistWidget->takeItem(currentAudioIndex); //El borrem de la llista que mostrem
         layout->removeWidget(rightLabel);
-        rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides");
+        rightLabel->setText(QString::number(audioFiles.size()) + " cançons afegides"); //Actualitzem el statusBar amb les cançons que queden
         layout->addWidget(rightLabel);
         loadStatusBar();
         EstatCanco();
-        leftLabel->setText(textActual.append(" - Cançó Eliminada"));
+        leftLabel->setText(textActual.append(" - Cançó Eliminada")); //Afegim informació al statusBar de que la cançó s'ha eliminat
         Notificacio();
-        savePlaylist();
+        savePlaylist(); //Guardem les cançons que queden al txt
     }else{
 
     }
 
 }
 
+//Funcions per a la barra d'eines
 void MainWindow::on_actionBucle_triggered(){
     bucle();
 }
 
 void MainWindow::on_actionAleatori_triggered(){
+    sequencial2 = false;
+    continua2 = false;
     sequencial();
 }
 
@@ -478,25 +520,36 @@ void MainWindow::on_actionInsertar_Can_triggered(){
     addAudioFiles();
 }
 
+void MainWindow::on_actionContinua_triggered(){
+
+    sequencial2 = true;
+    sequencial();
+}
+
 void MainWindow::on_actionAjuda_triggered(){
     windowhelp *helpWindow = new windowhelp(this);
     helpWindow->show();
 }
+
+//Cridem aquesta funció per afegir el statusBar
 void MainWindow::loadStatusBar()
 {
     //ui->statusbar->removeWidget(widget);
     ui->statusbar->addWidget(widget, 1);
 }
 
+//En aquesta funció canviem el text del label de l'esquerra
 void MainWindow::changeLeftLabelText()
 {
     if(audioFiles.size() > 0){
-        if(ui->playlistWidget->selectedItems().size() == 0){
+        if(player->source().isEmpty()){  //comprobem si hi ha una cançó seleccionada
                 newText = "";
         }else{
-            if(!isPlaying){
+            if(!isPlaying){ //comproblem si està pausada o s'està reproduint
+
                 newText = "Cançó Pausada";
             }else{
+
                 newText = "Reproduint Cançó";
 
             }
@@ -508,15 +561,23 @@ void MainWindow::changeLeftLabelText()
     loadStatusBar();
 }
 
+//Funció per obtindre l'estat de la cançó
+
 void MainWindow::EstatCanco(){
     if(audioFiles.size() > 0){
 
-            if(!isPlaying){
+        if(player->source().isEmpty()){ //comprobem si hi ha una cançó seleccionada
+
+                textActual = "";
+        }else{
+            if(!isPlaying){ //comproblem si està pausada o s'està reproduint
+
                 textActual = "Cançó Pausada";
             }else{
                 textActual = "Reproduint Cançó";
 
             }
+        }
 
     }else{
         textActual = "No hi ha cap cançó afegida";
@@ -524,23 +585,25 @@ void MainWindow::EstatCanco(){
 
 }
 
+//Funció la cual cridem per afegir contingut al label de l'esquerra i el borrem al cap de dos segons
 void MainWindow::Notificacio()
 {
 
 
-    if (sequencialTimer) {
+    if (sequencialTimer) { //En cas d'existir timer el parem, i l'eliminem per poder crear un nou (Això esta fet per a que si algu bugejar el statusbar no podrà
         sequencialTimer->stop();
         delete sequencialTimer;
         sequencialTimer = nullptr;
     } else {
 
     }
-    sequencialTimer = new QTimer(this);
-    connect(sequencialTimer, SIGNAL(timeout()), this, SLOT(changeLeftLabelText()));
+    sequencialTimer = new QTimer(this); //creem un timer
+    connect(sequencialTimer, SIGNAL(timeout()), this, SLOT(changeLeftLabelText())); //Li asignem a quina funció ha de cridar
     sequencialTimer->start(2000);
 }
 
 
+//Funció per guardar la playlist al fitxer .txt
 void MainWindow::savePlaylist()
 {
     QFile file(playlistFilePath);
@@ -555,7 +618,7 @@ void MainWindow::savePlaylist()
     }
 }
 
-
+//Funció per cargar les cançons guardades al .txt
 void MainWindow::loadPlaylist()
 {
     QFile file(playlistFilePath);
@@ -563,10 +626,10 @@ void MainWindow::loadPlaylist()
         QTextStream stream(&file);
         while (!stream.atEnd()) {
             QString filePath = stream.readLine();
-            if (!filePath.isEmpty() && !audioFiles.contains(filePath)) {
+            if (!filePath.isEmpty() && !audioFiles.contains(filePath)) { //Comprobem si hi han cançons al fitxer i les afegim al QList audioFiles
                 audioFiles.append(filePath);
                 QFileInfo fileInfo(filePath);
-                ui->playlistWidget->addItem(fileInfo.fileName());
+                ui->playlistWidget->addItem(fileInfo.fileName()); //Afegim la cançó a la llista que mostrem
             }
         }
         file.close();
