@@ -35,5 +35,5 @@ function Component()
 changeLicenseLabels = function()
 {
     page = gui.pageWidgetByObjectName("LicenseAgreementPage");
-    page.AcceptLicenseLabel.setText("Yes I do!");
+    page.AcceptLicenseLabel.setText("He llegit i accepto els Termes i Condicions!");
 }
