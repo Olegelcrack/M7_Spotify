@@ -193,6 +193,13 @@ void MainWindow::updatePositionLabel(qint64 position)
     int seconds = (position % 60000) / 1000;
     QString positionString = QString("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
     ui->duracio->setText(positionString);
+
+    qint64 duraciototal = player->duration();
+    int minutstotals = duraciototal / 60000;
+    int segonstotals = (duraciototal % 60000) / 1000;
+    QString duraciototalstring = QString("%1:%2").arg(minutstotals, 2, 10, QChar('0')).arg(segonstotals, 2, 10, QChar('0'));
+    ui->duraciototal->setText(duraciototalstring);
+
 }
 
 //Funció que utilitzem per pasar de cançó
@@ -394,7 +401,7 @@ void MainWindow::sequencial() {
             ui->sequencial->setIcon(QIcon(":/icons/shuffle.png"));
             ui->actionAleatori->setChecked(false);
             ui->sequencial->setStyleSheet("");
-            leftLabel->setText(textActual.append(" - Continu Desactivat"));
+            leftLabel->setText(textActual.append(" - Sequencial Activat"));
         }
 
     }
