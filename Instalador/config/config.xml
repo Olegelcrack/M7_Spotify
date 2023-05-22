@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>WeMusic</Name>
+    <Version>1.0.0</Version>
+    <Title>WeMusic Installer</Title>
+    <Publisher>WeMusicCo</Publisher>
+    <StartMenuDir>WeMusic</StartMenuDir>
+    <TargetDir>@HomeDir@/WeMusic</TargetDir>
+</Installer>

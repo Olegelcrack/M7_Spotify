@@ -1,0 +1,27 @@
+ACORD DE LLEI DE DRETS D'AUTOR I LLEI DE PATENTS
+
+IMPORTANT: L'ÚS D'AQUEST PROGRAMARI ESTÀ SUBJECTE ALS TERMES I CONDICIONS D'AQUEST ACORD. SI NO ACCEPTES AQUESTS TERMES, NO INSTAL·LIS, COPIÏS NI UTILITZIS EL PROGRAMARI.
+
+1. Llicència
+
+Mitjançant aquest acord, l'Usuari final (en endavant, "Llicenciatari") obté una llicència limitada, no exclusiva i no transferible per utilitzar el programari descrit en aquest acord (en endavant, "Programari") amb l'únic propòsit d'utilitzar-lo en els termes i condicions establerts aquí.
+
+2. Propietat
+
+El Programari i tots els drets de propietat intel·lectual associats (incloent, però no limitant-se a, drets d'autor, patents, secrets comercials i marques registrades) són propietat exclusiva del Titular de la llicència (en endavant, "Titular") i/o els seus llicenciadors. El Programari està protegit per les lleis de drets d'autor i altres lleis de propietat intel·lectual.
+
+3. Limitacions
+
+El Llicenciatari no té permès modificar, adaptar, descompilar, desensamblar, realitzar enginyeria inversa, sublicenciar, vendre, llogar, distribuir o transferir el Programari, ni crear obres derivades del Programari, llevat que expressament s'autoritzi per escrit pel Titular.
+
+4. Exclusió de garanties
+
+EL PROGRAMARI ES PROPORCIONA "COM ESTÀ" I "SEGONS DISPONIBILITAT". EN CAP CAS EL TITULAR NO GARANTEIX LA SEVA APTITUD PER A UN PROPÒSIT CONCRET, NI LA SEVA COMPLETITAT, PRECISIÓ O FIABILITAT. EL Llicenciatari ASSUMEIX TOT EL RISC RELACIONAT AMB L'ÚS DEL PROGRAMARI.
+
+5. Limitació de responsabilitat
+
+EN CAP CAS EL TITULAR NO SERÀ RESPONSABLE PER DANYS DIRECTES, INDIRECTES, FORTUÏTS, ESPECIALS, PUNITIUS O CONSEQÜENCIALS QUE PUGUIN SORGIR EN RELACIÓ AMB L'ÚS O LA INCAPACITAT D'ÚS DEL PROGRAMARI, INCLÒSOS, PERÒ NO LIMITATS A, DANYS PER PÈRDUA DE DADES, INTERRUPCIÓ DEL NEGOCI, PÈRDUA D'ESTALVIS O ALTRES PÈRDUES PECUNIÀRIES, ENCARA QUE S'HAURIA INFORMAT DE LA POSSIBILITAT D'AQUESTS DANYS.
+
+6. Termini de vigència
+
+Aquest acord entra en vigor en la data d'instal·lació o utilització del Programari i continuarà vigent fins que sigui resolt per una de les parts. En cas de resolució, el Llicenciatari haurà de deixar de utilitzar
