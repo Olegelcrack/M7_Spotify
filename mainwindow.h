@@ -63,7 +63,6 @@ private slots:
     void on_actionContinua_triggered();
     void remove();
     void updatePositionLabel(qint64 position);
-    void on_sliderClicked(int position);
 
 private:
     Ui::MainWindow *ui;
