@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->menys, &QPushButton::clicked, this, &MainWindow::enrrereAudio);
     connect(ui->sequencial, &QPushButton::clicked, this, &MainWindow::sequencial);
     connect(ui->bucle, &QPushButton::clicked, this, &MainWindow::bucle);
+    connect(ui->remove, &QPushButton::clicked, this, &MainWindow::remove);
     connect(scSpace, &QShortcut::activated, this, &MainWindow::playAudio);
     connect(scForward, &QShortcut::activated, this, &MainWindow::endavantAudio);
     connect(scBackward, &QShortcut::activated, this, &MainWindow::enrrereAudio);
